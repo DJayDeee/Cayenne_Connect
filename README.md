@@ -1,8 +1,11 @@
 # Cayenne_Connect
-
 Inspired from kentaylor/WiFiManager (forked from tzapu/WiFiManager)
 
+# Contents
+- [Defines and structures](#defines-and-structures)  
+- [Functions](#functions)
 
+### Defines and structures
 * TIMEOUT define is used to close the WiFi configuration portal after a numer of seconds.  This apply only if a SSID exist and if there is no connection to the portal.
 
 * CONFIG_FILE is the file name where different parameter are stored in SPIFFS.
@@ -28,5 +31,5 @@ Inspired from kentaylor/WiFiManager (forked from tzapu/WiFiManager)
 
 * PIN_LED is the output pin for debuging led.
 
-
-
+### Functions
+* 
