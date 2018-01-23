@@ -27,14 +27,14 @@ Cayenne_Connect::Cayenne_Connect(void) {
 	DEBUG_CC(F("#####|  STARTING Cayenne_Connect  |#####"));
 	DEBUG_CC("");
 	
-	if(!readWiFiConfigFile()) {										// Restore configuration (IP, HostName and debug).
+	if(!readWiFiConfigFile()) {										// Restore configuration (WiFi,IP, HostName, Cayenne and debug).
 		DEBUG_CC(F("!!===-->  CONTINUE WITHOUT RESTORING SETTINGS  <--===!!"));
 	}
 	Connect(STATIC_NOHOSTNAME);	
 	OpenPortal();													// Open the configuration portal.
 	Connect(DHCP_HOSTNAME);
 	
-	DEBUG_CC(F("#######  Cayenne_Connect DONE  #######"));
+	DEBUG_CC(F("######|  Cayenne_Connect DONE  |######"));
 	DEBUG_CC(F("######################################\n\n"));
 }
 
@@ -46,22 +46,22 @@ Cayenne_Connect::Cayenne_Connect(void) {
 bool Cayenne_Connect::readWiFiConfigFile(void) {
 //	Serial.println(F("*CC: <--===| Restoring config file |===-->"));
 
-	if(!SPIFFS.begin()){											// Exit if unable to mount SPIFlashFileSystem.
+	if(!SPIFFS.begin()){
 		Serial.println(F("*CC: =================ERROR================\n*CC: Unable to mount SPI Flash File System."));
 		return false;
 	}
-	if(!SPIFFS.exists(CONFIG_FILE)) {								// Unmount SPIFF and exit if the confguration file does not exist.
+	if(!SPIFFS.exists(CONFIG_FILE)) {
 		Serial.println(F("*CC: =============ERROR===========\n*CC: Configuration file not found."));
 		SPIFFS.end();
 		return false;
 	}
 	File f = SPIFFS.open(CONFIG_FILE, "r");
-	if(!f) {														// Unmount SPIFF and exit if unable to open the configuration file.
+	if(!f) {
 		Serial.println(F("*CC: ==================ERROR===============\n*CC: Unable to open the configuration file."));
 		SPIFFS.end();
 		return false;
 	}
-	size_t size = f.size();											// Allocate a buffer to store contents of the file.
+	size_t size = f.size();											// Allocate and store contents of CONFIG_FILE in a buffer.
 	std::unique_ptr<char[]> buf(new char[size]);
 	f.readBytes(buf.get(), size);
 	f.close();														// Closing file and unmount SPIFlashFileSystem.
@@ -78,7 +78,7 @@ bool Cayenne_Connect::readWiFiConfigFile(void) {
 	json.prettyPrintTo(Serial);
 	Serial.println("");
 
-	char *buf2 = new char[16];										// Parse all parameters and, if required, override local variables with parsed values.
+	char *buf2 = new char[16];										// Parse all parameters and override local variables.
 	if(json.containsKey("ssid")) {
 		strcpy(ssid, json["ssid"]);
 	}
@@ -124,12 +124,12 @@ bool Cayenne_Connect::readWiFiConfigFile(void) {
 bool Cayenne_Connect::writeWiFiConfigFile(void) {
 //	Serial.println(F("*CC: <--===| Saving config file |===-->"));
 
-	if(!SPIFFS.begin()){ 											// Exit if unable to mount SPIFlashFileSystem.
+	if(!SPIFFS.begin()){
 		Serial.println(F("*CC: =================ERROR================\n*CC: Unable to mount SPI Flash File System."));
 		return false;
 	}
 	File f = SPIFFS.open(CONFIG_FILE, "w");
-	if(!f) {														// Unmount SPIFF and exit if unable to open the configuration file.
+	if(!f) {
 		Serial.println(F("*CC: ================ERROR=================\n*CC: Failed to open config file for writing.\n"));
 		SPIFFS.end();
 		return false;
@@ -137,9 +137,9 @@ bool Cayenne_Connect::writeWiFiConfigFile(void) {
 
 	DynamicJsonBuffer jsonBuffer;									// Using dynamic JSON buffer which is not the recommended memory model, but anyway, See https://github.com/bblanchon/ArduinoJson/wiki/Memory%20model
 	JsonObject& json	= jsonBuffer.createObject();				// Create JSON string.
-	json["ssid"]		= ssid;
+	json["ssid"]		= ssid;										// JSONify local configuration parameters.
 	json["pass"]		= pass;
-	json["username"]	= MQTT_credential.username;					// JSONify local configuration parameters.
+	json["username"]	= MQTT_credential.username;
 	json["password"]	= MQTT_credential.password;
 	json["clientID"]	= MQTT_credential.clientID;
 	json["ip"]			= staticAddress.ip.toString();
@@ -188,7 +188,7 @@ bool Cayenne_Connect::Connect(const int option) const {
 								return false;
 	}
 	
-	WiFi.reconnect();												// Reconnect if needed to properly set the hostname.
+	WiFi.reconnect();												// Reconnect to properly set the hostname.
 	switch(WiFi.waitForConnectResult()) {
 		case WL_CONNECTED:		DEBUG_CC(F("WL_CONNECTED (Successful connection is established)."));	break;
 		case WL_IDLE_STATUS:	DEBUG_CC(F("WL_IDLE_STATUS (Changing between statuses)."));				return false;
@@ -215,7 +215,7 @@ void Cayenne_Connect::OpenPortal(void) {
 	WiFiManagerParameter p_username("MQTT_username",	"Cayenne username :",	MQTT_credential.username,	48);
 	WiFiManagerParameter p_password("MQTT_password",	"Cayenne password :",	MQTT_credential.password,	48);
 	WiFiManagerParameter p_clientID("MQTT_clientID",	"Cayenne clientID :",	MQTT_credential.clientID,	48);
-	WiFiManagerParameter p_hostname("hostname",			"Custom hostname :",	staticAddress.hostname,	32);// Create hostname input field.
+	WiFiManagerParameter p_hostname("hostname",			"Custom hostname :",	staticAddress.hostname,		32);
 	char customhtml[24] = "type=\"checkbox\"";						// Create a checkbox for the debug boolean input field.
 	char *_value = "T";
 	if(debug) {
@@ -229,19 +229,19 @@ void Cayenne_Connect::OpenPortal(void) {
 	wifiManager.addParameter(&p_hostname);
 	wifiManager.addParameter(&p_debug);
 	wifiManager.setDebugOutput(debug);
-	wifiManager.setSTAStaticIPConfig(staticAddress.ip, staticAddress.gateway, staticAddress.subnet);// Use STA fixed IP adress.
+	wifiManager.setSTAStaticIPConfig(staticAddress.ip, staticAddress.gateway, staticAddress.subnet);// Field for STA fixed IP adress.
 	if(WiFi.SSID() !="") wifiManager.setConfigPortalTimeout(TIMEOUT); // If access point name exist set a timeout.
-	wifiManager.setSaveConfigCallback(saveConfigCallback);
+	wifiManager.setSaveConfigCallback(saveConfigCallback);			// Callback to set shouldSaveConfig flag only if you it save button in portal.
 
 	wifiManager.startConfigPortal();								// Start the config portal.
 
 	DEBUG_CC(F("<--===| Portal closed |===-->"));
 	DEBUG_CC("");
 	
-	if(shouldSaveConfig){
-		strcpy(ssid, WiFi.SSID().c_str());
+	if(shouldSaveConfig){											// Gater configuration parameters only if we should save it.
+		strcpy(ssid, WiFi.SSID().c_str());							// Get the value of each parameters.
 		strcpy(pass, WiFi.psk().c_str());
-		strcpy(MQTT_credential.username, const_cast<char*>(p_username.getValue())); // Get the value of each parameters.
+		strcpy(MQTT_credential.username, const_cast<char*>(p_username.getValue()));
 		strcpy(MQTT_credential.password, const_cast<char*>(p_password.getValue()));
 		strcpy(MQTT_credential.clientID, const_cast<char*>(p_clientID.getValue()));
 		staticAddress.ip 			= WiFi.localIP();
