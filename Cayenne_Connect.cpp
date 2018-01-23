@@ -139,7 +139,7 @@ bool Cayenne_Connect::writeWiFiConfigFile(void) {
 	JsonObject& json	= jsonBuffer.createObject();				// Create JSON string.
 	json["ssid"]		= ssid;
 	json["pass"]		= pass;
-	json["username"]	= MQTT_credential.username;				// JSONify local configuration parameters.
+	json["username"]	= MQTT_credential.username;					// JSONify local configuration parameters.
 	json["password"]	= MQTT_credential.password;
 	json["clientID"]	= MQTT_credential.clientID;
 	json["ip"]			= staticAddress.ip.toString();
@@ -148,7 +148,7 @@ bool Cayenne_Connect::writeWiFiConfigFile(void) {
 	json["hostname"]	= staticAddress.hostname;
 	json["debug"]		= debug;
 	
-	if(debug) {													// If debug is enable print what will be saved in the CONFIG_FILE.
+	if(debug) {														// If debug is enable print what will be saved in the CONFIG_FILE.
 		Serial.printf("*CC: Saving config to file \"%s\" :\n", CONFIG_FILE);
 		json.prettyPrintTo(Serial);
 		Serial.println("");
