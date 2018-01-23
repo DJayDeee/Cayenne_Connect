@@ -1,5 +1,5 @@
 # Cayenne_Connect
-Inspired from kentaylor/WiFiManager (forked from tzapu/WiFiManager)
+Inspired from [kentaylor/WiFiManager](https://github.com/kentaylor/WiFiManager) (forked from [tzapu/WiFiManager](https://github.com/tzapu/WiFiManager))
 
 # Contents
 - [Defines and structures](#defines-and-structures)  
