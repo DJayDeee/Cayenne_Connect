@@ -12,7 +12,7 @@ Used to set WiFi SSID, password and hostname, Cayenne username, password and cli
 
 * CONFIG_FILE is the file name where different parameter are stored in SPIFFS.
   Exemple of what is inside CONFIG_FILE :
-  ```bash
+```bash
 	{
 	  "ssid": "yourwifiname",
 	  "pass": "yourwifipassword",
