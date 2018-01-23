@@ -41,11 +41,11 @@ It restore configuration, connect WiFi whit static IP, start WiFiManager (STA + 
 
 * DHCPAddress is used to switch from static IP to DHCP address (0.0.0.0).  Does not work whit stable release 2.4.0 [Arduino for ESP8266](https://github.com/esp8266/Arduino) see issue [https://github.com/esp8266/Arduino/pull/4145](https://github.com/esp8266/Arduino/pull/4145).
 
-* staticAddress structure contain the IP, GATEWAY, SUBNET adress and hostname.
+* _staticAddress structure contain the IP, GATEWAY, SUBNET adress and hostname.
 
-* MQTT_credential contain Cayenne authentication (username, password and clientID) obtained from the Cayenne Dashboard.
+* _MQTT_credential  contain Cayenne authentication (username, password and clientID) obtained from the Cayenne Dashboard.
 
-* PIN_LED is the output pin for debuging led.
+* PIN_LED is the default output pin for debuging led.
 
 ### Functions
 * LED(const int _pin = PIN_LED) instanciate LED class and turn it off.
