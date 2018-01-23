@@ -1,16 +1,16 @@
 # Cayenne_Connect
 WiFi and Cayenne connection helper for ESP8266.  Open a WiFi configuration portal to enter Cayenne authentication info.
 Used to set :
-	* WiFi SSID
-	* WiFi password
-	* hostname
-	* Cayenne username
-	* Cayenne password
-	* Cayenne clientID
-	* enable/disable serial debug informations
-	* static  IP address
-	* gateway IP address
-	* subnet  IP address
+* WiFi SSID
+* WiFi password
+* hostname
+* Cayenne username
+* Cayenne password
+* Cayenne clientID
+* enable/disable serial debug informations
+* static  IP address
+* gateway IP address
+* subnet  IP address
 
 It restore configuration, connect WiFi whit static IP, start WiFiManager (STA + AP), save configuration if needed and reconnect WiFi whit dynamic IP and hostname.  For an unfortunate reason Cayenne does not connect if we use static IP address.
 
