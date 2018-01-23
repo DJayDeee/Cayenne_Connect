@@ -12,9 +12,9 @@ Used to set :
 * gateway IP address
 * subnet  IP address
 
-It restore configuration, connect WiFi whit static IP, start WiFiManager (STA + AP), save configuration if needed and reconnect WiFi whit dynamic IP and hostname.  For an unfortunate reason Cayenne does not connect if we use static IP address.
+It restore configuration, connect WiFi whit static IP, start WiFiManager (STA + AP), save configuration if needed and reconnect WiFi whit dynamic IP and hostname.  **For an unfortunate reason Cayenne does not connect if we use static IP address.**
 
-# Contents
+## Contents
 - [Defines and structures](#defines-and-structures)  
 - [Functions](#functions)
 - [License and credits](#license-and-credits)
