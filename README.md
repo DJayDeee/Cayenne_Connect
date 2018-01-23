@@ -48,7 +48,7 @@ Used to set WiFi SSID, password and hostname, Cayenne username, password and cli
 	* getMQTTclientID()
 
 ### License and credits
-Inspired from [kentaylor/WiFiManager](https://github.com/kentaylor/WiFiManager) (forked from [tzapu/WiFiManager](https://github.com/tzapu/WiFiManager))
-[Arduino for ESP8266](https://github.com/esp8266/Arduino)
-[SPI Flash File System (SPIFFS)](https://github.com/pellepl/spiffs)
-[C++ JSON library for IoT](https://github.com/bblanchon/ArduinoJson) [https://arduinojson.org](https://arduinojson.org)
+- Inspired from [kentaylor/WiFiManager](https://github.com/kentaylor/WiFiManager) (forked from [tzapu/WiFiManager](https://github.com/tzapu/WiFiManager))
+- [Arduino for ESP8266](https://github.com/esp8266/Arduino)
+- [SPI Flash File System (SPIFFS)](https://github.com/pellepl/spiffs)
+- [C++ JSON library for IoT](https://github.com/bblanchon/ArduinoJson) [https://arduinojson.org](https://arduinojson.org)
