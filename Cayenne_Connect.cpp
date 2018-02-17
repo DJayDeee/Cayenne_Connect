@@ -79,38 +79,38 @@ bool Cayenne_Connect::readWiFiConfigFile(void) {
 	Serial.println("");
 
 	char *buf2 = new char[16];						// Parse all parameters and override local variables.
-	if(json.containsKey("ssid")) {
-		strcpy(ssid, json["ssid"]);
+	if(json.containsKey(String(F("ssid")))) {
+		strcpy(ssid, json[String(F("ssid"))]);
 	}
-	if(json.containsKey("pass")) {
-		strcpy(pass, json["pass"]);
+	if(json.containsKey(String(F("pass")))) {
+		strcpy(pass, json[String(F("pass"))]);
 	}
-	if(json.containsKey("username")) {
-		strcpy(MQTT_credential.username, json["username"]);
+	if(json.containsKey(String(F("username")))) {
+		strcpy(MQTT_credential.username, json[String(F("username"))]);
 	}
-	if(json.containsKey("password")) {
-		strcpy(MQTT_credential.password, json["password"]);
+	if(json.containsKey(String(F("password")))) {
+		strcpy(MQTT_credential.password, json[String(F("password"))]);
 	}
-	if(json.containsKey("clientID")) {
-		strcpy(MQTT_credential.clientID, json["clientID"]);
+	if(json.containsKey(String(F("clientID")))) {
+		strcpy(MQTT_credential.clientID, json[String(F("clientID"))]);
 	}
-	if(json.containsKey("ip")) {
-		strcpy(buf2, json["ip"]);
+	if(json.containsKey(String(F("ip")))) {
+		strcpy(buf2, json[String(F("ip"))]);
 		staticAddress.ip.fromString(buf2);
 	}
-	if(json.containsKey("gateway")) {
-		strcpy(buf2, json["gateway"]);
+	if(json.containsKey(String(F("gateway")))) {
+		strcpy(buf2, json[String(F("gateway"))]);
 		staticAddress.gateway.fromString(buf2);
 	}
-	if(json.containsKey("subnet")) {
-		strcpy(buf2, json["subnet"]);
+	if(json.containsKey(String(F("subnet")))) {
+		strcpy(buf2, json[String(F("subnet"))]);
 		staticAddress.subnet.fromString(buf2);
 	}
-	if(json.containsKey("hostname")) {
-		strcpy(staticAddress.hostname, json["hostname"]);
+	if(json.containsKey(String(F("hostname")))) {
+		strcpy(staticAddress.hostname, json[String(F("hostname"))]);
 	}
-	if(json.containsKey("debug")) {
-		debug = json["debug"];
+	if(json.containsKey(String(F("debug")))) {
+		debug = json[String(F("debug"))];
 	}
 	DEBUG_CC("");
 	return true;
@@ -137,16 +137,16 @@ bool Cayenne_Connect::writeWiFiConfigFile(void) {
 
 	DynamicJsonBuffer jsonBuffer;						// Using dynamic JSON buffer which is not the recommended memory model, but anyway, See https://github.com/bblanchon/ArduinoJson/wiki/Memory%20model
 	JsonObject& json	= jsonBuffer.createObject();			// Create JSON string.
-	json["ssid"]		= ssid;						// JSONify local configuration parameters.
-	json["pass"]		= pass;
-	json["username"]	= MQTT_credential.username;
-	json["password"]	= MQTT_credential.password;
-	json["clientID"]	= MQTT_credential.clientID;
-	json["ip"]		= staticAddress.ip.toString();
-	json["gateway"]		= staticAddress.gateway.toString();
-	json["subnet"]		= staticAddress.subnet.toString();
-	json["hostname"]	= staticAddress.hostname;
-	json["debug"]		= debug;
+	json[String(F("ssid"))]		= ssid;						// JSONify local configuration parameters.
+	json[String(F("pass"))]		= pass;
+	json[String(F("username"))]	= MQTT_credential.username;
+	json[String(F("password"))]	= MQTT_credential.password;
+	json[String(F("clientID"))]	= MQTT_credential.clientID;
+	json[String(F("ip"))]		= staticAddress.ip.toString();
+	json[String(F("gateway"))]		= staticAddress.gateway.toString();
+	json[String(F("subnet"))]		= staticAddress.subnet.toString();
+	json[String(F("hostname"))]	= staticAddress.hostname;
+	json[String(F("debug"))]		= debug;
 
 	if(debug) {								// If debug is enable print what will be saved in the CONFIG_FILE.
 		Serial.printf("*CC: Saving config to file \"%s\" :\n", CONFIG_FILE);
