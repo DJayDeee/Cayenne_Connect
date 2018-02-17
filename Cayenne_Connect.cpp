@@ -23,9 +23,9 @@ void	saveConfigCallback(void) {	Cayenne_Connect::shouldSaveConfig = true;	}
 // Constructor : Setup static IPAddress variable, generate default hostname and restore configuration.
 //***************************************************************************************
 Cayenne_Connect::Cayenne_Connect(void) {
-	DEBUG_CC(F("########################################"));
-	DEBUG_CC(F("#####|  STARTING Cayenne_Connect  |#####"));
-	DEBUG_CC("");
+	DEBUG_CC(F("########################################"), true);
+	DEBUG_CC(F("#####|  STARTING Cayenne_Connect  |#####"), true);
+	DEBUG_CC("", true);
 
 	if(!readWiFiConfigFile()) {						// Restore configuration (WiFi,IP, HostName, Cayenne and debug).
 		DEBUG_CC(F("!!===-->  CONTINUE WITHOUT RESTORING SETTINGS  <--===!!"));
@@ -34,8 +34,8 @@ Cayenne_Connect::Cayenne_Connect(void) {
 	OpenPortal();								// Open the configuration portal.
 	Connect(DHCP_HOSTNAME);
 
-	DEBUG_CC(F("######|  Cayenne_Connect DONE  |######"));
-	DEBUG_CC(F("######################################\n\n"));
+	DEBUG_CC(F("######|  Cayenne_Connect DONE  |######"), true);
+	DEBUG_CC(F("######################################\n\n"), true);
 }
 
 
@@ -259,8 +259,8 @@ void Cayenne_Connect::OpenPortal(void) {
 // Channel to print the debug.
 //***************************************************************************************
 template <typename Generic>
-void Cayenne_Connect::DEBUG_CC(Generic text) const{
-	if (debug) {
+void Cayenne_Connect::DEBUG_CC(Generic text, const bool force) const{
+	if (debug || force) {
 		Serial.print("*CC: ");
 		Serial.println(text);
 	}

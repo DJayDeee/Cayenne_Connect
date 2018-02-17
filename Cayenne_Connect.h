@@ -61,11 +61,11 @@ class LED {
 class Cayenne_Connect {
   public:
 	Cayenne_Connect(void);							// Restore configuration, connect WiFi whit static IP, start WiFiManager, save configuration if needed and reconnect WiFi whit dynamic IP and hostname.
-	void		setDebugOutput(const bool _debug) { debug = _debug;	} // Called to enable/disable the debug information over serial.
+	void		setDebugOutput(const bool _debug) { debug = _debug; }	// Called to enable/disable the debug information over serial.
 
-	char*		getMQTTusername(void) {	return MQTT_credential.username;	}
-	char*		getMQTTpassword(void) {	return MQTT_credential.password;	}
-	char*		getMQTTclientID(void) {	return MQTT_credential.clientID;	}
+	char*		getMQTTusername(void) {	return MQTT_credential.username; }
+	char*		getMQTTpassword(void) {	return MQTT_credential.password; }
+	char*		getMQTTclientID(void) {	return MQTT_credential.clientID; }
 
 	static	bool	shouldSaveConfig;					// Flag for saving data.
 
@@ -83,7 +83,7 @@ class Cayenne_Connect {
 	void		OpenPortal(void);					// Configure the WiFi via WiFiManager portal.
 
 	template <typename Generic>						// Debug channel enable if debug is set.
-	void		DEBUG_CC(Generic text) const;
+	void		DEBUG_CC(Generic text, const bool force = false) const;
 
 };
 
