@@ -91,7 +91,7 @@ bool Cayenne_Connect::readWiFiConfigFile(void) {
 		strcpy(pass, json[String(F("pass"))]);
 	}
 
-
+#ifndef	_CAYENNEMQTTESP8266_h
 	if(json.containsKey(String(F("username")))) {
 		strcpy(Cayenne_credential.username, json[String(F("username"))]);
 	}
@@ -104,7 +104,7 @@ bool Cayenne_Connect::readWiFiConfigFile(void) {
 	if(json.containsKey(String(F("loop_delay")))) {
 		loop_delay = json[String(F("loop_delay"))];
 	}
-
+#endif
 
 	if(json.containsKey(String(F("ip")))) {
 		strcpy(buf2, json[String(F("ip"))]);
@@ -123,6 +123,9 @@ bool Cayenne_Connect::readWiFiConfigFile(void) {
 	}
 	if(json.containsKey(String(F("debug")))) {
 		debug = json[String(F("debug"))];
+	}
+	if(json.containsKey(String(F("timeout")))) {
+		timeout = json[String(F("timeout"))];
 	}
 	DEBUG_CC("");
 	return true;
@@ -152,16 +155,19 @@ bool Cayenne_Connect::writeWiFiConfigFile(void) {
 	json[String(F("ssid"))]		= ssid;					// JSONify local configuration parameters.
 	json[String(F("pass"))]		= pass;
 
+#ifndef	_CAYENNEMQTTESP8266_h
 	json[String(F("username"))]	= Cayenne_credential.username;
 	json[String(F("password"))]	= Cayenne_credential.password;
 	json[String(F("clientID"))]	= Cayenne_credential.clientID;
 	json[String(F("loop_delay"))]	= loop_delay;
+#endif
 
 	json[String(F("ip"))]		= staticAddress.ip.toString();
 	json[String(F("gateway"))]	= staticAddress.gateway.toString();
 	json[String(F("subnet"))]	= staticAddress.subnet.toString();
 	json[String(F("hostname"))]	= staticAddress.hostname;
 	json[String(F("debug"))]	= debug;
+	json[String(F("timeout"))]	= timeout;
 
 	if(debug) {								// If debug is enable print what will be saved in the CONFIG_FILE.
 		Serial.printf("*CC: Saving config to file \"%s\" :\n", CONFIG_FILE);
@@ -227,6 +233,7 @@ void Cayenne_Connect::OpenPortal(void) {
 	WiFiManager wifiManager;
 
 	// Format: <ID> <Placeholder text> <default value> <length> <custom HTML> <label placement>.
+#ifndef	_CAYENNEMQTTESP8266_h
 	WiFiManagerParameter p_username("MQTT_username",	"Cayenne username :",	Cayenne_credential.username,	48);
 	WiFiManagerParameter p_password("MQTT_password",	"Cayenne password :",	Cayenne_credential.password,	48);
 	WiFiManagerParameter p_clientID("MQTT_clientID",	"Cayenne clientID :",	Cayenne_credential.clientID,	48);
@@ -237,7 +244,7 @@ void Cayenne_Connect::OpenPortal(void) {
 	wifiManager.addParameter(&p_password);
 	wifiManager.addParameter(&p_clientID);
 	wifiManager.addParameter(&p_loop_delay);
-
+#endif
 	WiFiManagerParameter p_hostname("hostname",		"Custom hostname :",	staticAddress.hostname,		32);
 	wifiManager.addParameter(&p_hostname);
 
@@ -249,10 +256,14 @@ void Cayenne_Connect::OpenPortal(void) {
 	WiFiManagerParameter p_debug("debug", "Debug serial printout", _value, 2, customhtml, WFM_LABEL_AFTER);
 	wifiManager.addParameter(&p_debug);
 
+	char _timeout[6];
+	sprintf(_timeout, "%d", timeout);
+	WiFiManagerParameter p_timeout("timeout_delay",		"Configuration portal timeout :",	_timeout,	6);
+	wifiManager.addParameter(&p_timeout);
 
 	wifiManager.setDebugOutput(debug);
 	wifiManager.setSTAStaticIPConfig(staticAddress.ip, staticAddress.gateway, staticAddress.subnet);	// Field for STA fixed IP adress.
-	if(WiFi.SSID() !="") wifiManager.setConfigPortalTimeout(TIMEOUT); 	// If access point name exist set a timeout.
+	if(WiFi.SSID() != "") wifiManager.setConfigPortalTimeout(timeout);	// If access point name exist set a timeout.
 	wifiManager.setSaveConfigCallback(saveConfigCallback);			// Callback to set shouldSaveConfig flag only if you it save button in portal.
 
 	wifiManager.startConfigPortal();					// Start the config portal.
@@ -264,16 +275,19 @@ void Cayenne_Connect::OpenPortal(void) {
 		strcpy(ssid, WiFi.SSID().c_str());				// Get the value of each parameters.
 		strcpy(pass, WiFi.psk().c_str());
 
+#ifndef	_CAYENNEMQTTESP8266_h
 		strcpy(Cayenne_credential.username, const_cast<char*>(p_username.getValue()));
 		strcpy(Cayenne_credential.password, const_cast<char*>(p_password.getValue()));
 		strcpy(Cayenne_credential.clientID, const_cast<char*>(p_clientID.getValue()));
 		loop_delay = atoi(p_loop_delay.getValue());
+#endif
 
 		staticAddress.ip 	= WiFi.localIP();
 		staticAddress.gateway	= WiFi.gatewayIP();
 		staticAddress.subnet	= WiFi.subnetMask();
 		strcpy(staticAddress.hostname, const_cast<char*>(p_hostname.getValue()));
 		debug = (strncmp(p_debug.getValue(), "T", 1) == 0);
+		timeout = atoi(p_timeout.getValue());
 		writeWiFiConfigFile();						// Save the confguration.
 		shouldSaveConfig = false;
 	}

@@ -23,9 +23,6 @@ SOFTWARE.
 #include	<WiFiManager.h>							//https://github.com/kentaylor/WiFiManager
 #include 	<stdlib.h>							//to use atoi()
 
-#ifndef	TIMEOUT
-#define	TIMEOUT		180							// TIMEOUT to close the WiFi configuration portal if a SSID exist.
-#endif
 #ifndef	CONFIG_FILE
 #define	CONFIG_FILE	"/CC_config.json"					// CONFIG_FILE is the name of the Configuration file.
 #endif
@@ -85,6 +82,7 @@ class Cayenne_Connect {
 	_staticAddress		staticAddress;
 	_MQTT_credential	Cayenne_credential;
 	bool			debug = true;
+	int			timeout = 180;
 
 	bool		readWiFiConfigFile(void);				// Restore configuration from the FileSystem.
 	bool		writeWiFiConfigFile(void);				// Save WiFi configuration to the FileSystem.
