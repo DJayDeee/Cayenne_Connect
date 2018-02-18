@@ -23,8 +23,12 @@ SOFTWARE.
 #include	<WiFiManager.h>							//https://github.com/kentaylor/WiFiManager
 #include 	<stdlib.h>							//to use atoi()
 
+#ifndef	TIMEOUT
 #define	TIMEOUT		180							// TIMEOUT to close the WiFi configuration portal if a SSID exist.
+#endif
+#ifndef	CONFIG_FILE
 #define	CONFIG_FILE	"/CC_config.json"					// CONFIG_FILE is the name of the Configuration file.
+#endif
 void	saveConfigCallback(void);						// Callback helper to set shouldSaveConfig flag.
 
 
@@ -64,20 +68,22 @@ class Cayenne_Connect {
 	Cayenne_Connect(void);							// Restore configuration, connect WiFi whit static IP, start WiFiManager, save configuration if needed and reconnect WiFi whit dynamic IP and hostname.
 	void		setDebugOutput(const bool _debug) { debug = _debug; }	// Called to enable/disable the debug information over serial.
 /*
-	char*		getMQTTusername(void) {	return MQTT_credential.username; }
-	char*		getMQTTpassword(void) {	return MQTT_credential.password; }
-	char*		getMQTTclientID(void) {	return MQTT_credential.clientID; }
+	char*		getMQTTusername(void) {	return Cayenne_credential.username; }
+	char*		getMQTTpassword(void) {	return Cayenne_credential.password; }
+	char*		getMQTTclientID(void) {	return Cayenne_credential.clientID; }
 */
+	_MQTT_credential	getCayenne_credential(void) {	return Cayenne_credential; }
+
 	static	bool	shouldSaveConfig;					// Flag for saving data.
 
-	static _MQTT_credential	Cayenne_credential;
+//	static _MQTT_credential	Cayenne_credential;
 	static int		loop_delay;
 
   private:
 	char			ssid[32];
 	char			pass[32];
 	_staticAddress		staticAddress;
-//	_MQTT_credential	MQTT_credential;
+	_MQTT_credential	Cayenne_credential;
 	bool			debug = true;
 
 	bool		readWiFiConfigFile(void);				// Restore configuration from the FileSystem.
