@@ -16,6 +16,7 @@ SOFTWARE.
 
 #include "Cayenne_Connect.h"
 
+int	Cayenne_Connect::loop_delay = 1000;
 bool	Cayenne_Connect::shouldSaveConfig = false;
 void	saveConfigCallback(void) {	Cayenne_Connect::shouldSaveConfig = true;	}
 
@@ -33,7 +34,11 @@ Cayenne_Connect::Cayenne_Connect(void) {
 	Connect(STATIC_NOHOSTNAME);
 	OpenPortal();								// Open the configuration portal.
 	Connect(DHCP_HOSTNAME);
-
+/*
+	strcpy(Cayenne_credential.username, getMQTTusername());
+	strcpy(Cayenne_credential.password, getMQTTpassword());
+	strcpy(Cayenne_credential.clientID, getMQTTclientID());
+*/
 	DEBUG_CC(F("######|  Cayenne_Connect DONE  |######"), true);
 	DEBUG_CC(F("######################################\n\n"), true);
 }
@@ -85,15 +90,22 @@ bool Cayenne_Connect::readWiFiConfigFile(void) {
 	if(json.containsKey(String(F("pass")))) {
 		strcpy(pass, json[String(F("pass"))]);
 	}
+
+
 	if(json.containsKey(String(F("username")))) {
-		strcpy(MQTT_credential.username, json[String(F("username"))]);
+		strcpy(Cayenne_credential.username, json[String(F("username"))]);
 	}
 	if(json.containsKey(String(F("password")))) {
-		strcpy(MQTT_credential.password, json[String(F("password"))]);
+		strcpy(Cayenne_credential.password, json[String(F("password"))]);
 	}
 	if(json.containsKey(String(F("clientID")))) {
-		strcpy(MQTT_credential.clientID, json[String(F("clientID"))]);
+		strcpy(Cayenne_credential.clientID, json[String(F("clientID"))]);
 	}
+	if(json.containsKey(String(F("loop_delay")))) {
+		loop_delay = json[String(F("loop_delay"))];
+	}
+
+
 	if(json.containsKey(String(F("ip")))) {
 		strcpy(buf2, json[String(F("ip"))]);
 		staticAddress.ip.fromString(buf2);
@@ -137,16 +149,19 @@ bool Cayenne_Connect::writeWiFiConfigFile(void) {
 
 	DynamicJsonBuffer jsonBuffer;						// Using dynamic JSON buffer which is not the recommended memory model, but anyway, See https://github.com/bblanchon/ArduinoJson/wiki/Memory%20model
 	JsonObject& json	= jsonBuffer.createObject();			// Create JSON string.
-	json[String(F("ssid"))]		= ssid;						// JSONify local configuration parameters.
+	json[String(F("ssid"))]		= ssid;					// JSONify local configuration parameters.
 	json[String(F("pass"))]		= pass;
-	json[String(F("username"))]	= MQTT_credential.username;
-	json[String(F("password"))]	= MQTT_credential.password;
-	json[String(F("clientID"))]	= MQTT_credential.clientID;
+
+	json[String(F("username"))]	= Cayenne_credential.username;
+	json[String(F("password"))]	= Cayenne_credential.password;
+	json[String(F("clientID"))]	= Cayenne_credential.clientID;
+	json[String(F("loop_delay"))]	= loop_delay;
+
 	json[String(F("ip"))]		= staticAddress.ip.toString();
-	json[String(F("gateway"))]		= staticAddress.gateway.toString();
-	json[String(F("subnet"))]		= staticAddress.subnet.toString();
+	json[String(F("gateway"))]	= staticAddress.gateway.toString();
+	json[String(F("subnet"))]	= staticAddress.subnet.toString();
 	json[String(F("hostname"))]	= staticAddress.hostname;
-	json[String(F("debug"))]		= debug;
+	json[String(F("debug"))]	= debug;
 
 	if(debug) {								// If debug is enable print what will be saved in the CONFIG_FILE.
 		Serial.printf("*CC: Saving config to file \"%s\" :\n", CONFIG_FILE);
@@ -212,22 +227,29 @@ void Cayenne_Connect::OpenPortal(void) {
 	WiFiManager wifiManager;
 
 	// Format: <ID> <Placeholder text> <default value> <length> <custom HTML> <label placement>.
-	WiFiManagerParameter p_username("MQTT_username",	"Cayenne username :",	MQTT_credential.username,	48);
-	WiFiManagerParameter p_password("MQTT_password",	"Cayenne password :",	MQTT_credential.password,	48);
-	WiFiManagerParameter p_clientID("MQTT_clientID",	"Cayenne clientID :",	MQTT_credential.clientID,	48);
+	WiFiManagerParameter p_username("MQTT_username",	"Cayenne username :",	Cayenne_credential.username,	48);
+	WiFiManagerParameter p_password("MQTT_password",	"Cayenne password :",	Cayenne_credential.password,	48);
+	WiFiManagerParameter p_clientID("MQTT_clientID",	"Cayenne clientID :",	Cayenne_credential.clientID,	48);
+	char _loop_delay[6];
+	sprintf(_loop_delay, "%d", loop_delay);
+	WiFiManagerParameter p_loop_delay("loop_delay",		"Cayenne loop delay :",	_loop_delay,			6);
+	wifiManager.addParameter(&p_username);
+	wifiManager.addParameter(&p_password);
+	wifiManager.addParameter(&p_clientID);
+	wifiManager.addParameter(&p_loop_delay);
+
 	WiFiManagerParameter p_hostname("hostname",		"Custom hostname :",	staticAddress.hostname,		32);
+	wifiManager.addParameter(&p_hostname);
+
 	char customhtml[24] = "type=\"checkbox\"";				// Create a checkbox for the debug boolean input field.
 	char *_value = "T";
 	if(debug) {
 		strcat(customhtml, " checked");
 	}
 	WiFiManagerParameter p_debug("debug", "Debug serial printout", _value, 2, customhtml, WFM_LABEL_AFTER);
-
-	wifiManager.addParameter(&p_username);
-	wifiManager.addParameter(&p_password);
-	wifiManager.addParameter(&p_clientID);
-	wifiManager.addParameter(&p_hostname);
 	wifiManager.addParameter(&p_debug);
+
+
 	wifiManager.setDebugOutput(debug);
 	wifiManager.setSTAStaticIPConfig(staticAddress.ip, staticAddress.gateway, staticAddress.subnet);	// Field for STA fixed IP adress.
 	if(WiFi.SSID() !="") wifiManager.setConfigPortalTimeout(TIMEOUT); 	// If access point name exist set a timeout.
@@ -241,9 +263,12 @@ void Cayenne_Connect::OpenPortal(void) {
 	if(shouldSaveConfig){							// Gater configuration parameters only if we should save it.
 		strcpy(ssid, WiFi.SSID().c_str());				// Get the value of each parameters.
 		strcpy(pass, WiFi.psk().c_str());
-		strcpy(MQTT_credential.username, const_cast<char*>(p_username.getValue()));
-		strcpy(MQTT_credential.password, const_cast<char*>(p_password.getValue()));
-		strcpy(MQTT_credential.clientID, const_cast<char*>(p_clientID.getValue()));
+
+		strcpy(Cayenne_credential.username, const_cast<char*>(p_username.getValue()));
+		strcpy(Cayenne_credential.password, const_cast<char*>(p_password.getValue()));
+		strcpy(Cayenne_credential.clientID, const_cast<char*>(p_clientID.getValue()));
+		loop_delay = atoi(p_loop_delay.getValue());
+
 		staticAddress.ip 	= WiFi.localIP();
 		staticAddress.gateway	= WiFi.gatewayIP();
 		staticAddress.subnet	= WiFi.subnetMask();
