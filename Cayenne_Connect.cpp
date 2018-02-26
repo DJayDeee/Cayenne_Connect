@@ -77,13 +77,6 @@ bool Cayenne_Connect::readWiFiConfigFile(const char *filename ) {
 	Serial.println("");
 
 	char *buf2 = new char[16];						// Parse all parameters and override local variables.
-	if(json.containsKey(String(F("ssid")))) {
-		strcpy(ssid, json[String(F("ssid"))]);
-	}
-	if(json.containsKey(String(F("pass")))) {
-		strcpy(pass, json[String(F("pass"))]);
-	}
-
 #ifndef	_CAYENNEMQTTESP8266_h
 	if(json.containsKey(String(F("username")))) {
 		strcpy(Cayenne_credential.username, json[String(F("username"))]);
@@ -98,7 +91,6 @@ bool Cayenne_Connect::readWiFiConfigFile(const char *filename ) {
 		loop_delay = json[String(F("loop_delay"))];
 	}
 #endif
-
 	if(json.containsKey(String(F("ip")))) {
 		strcpy(buf2, json[String(F("ip"))]);
 		staticAddress.ip.fromString(buf2);
@@ -145,16 +137,12 @@ bool Cayenne_Connect::writeWiFiConfigFile(const char *filename) {
 
 	DynamicJsonBuffer jsonBuffer;						// Using dynamic JSON buffer which is not the recommended memory model, but anyway, See https://github.com/bblanchon/ArduinoJson/wiki/Memory%20model
 	JsonObject& json	= jsonBuffer.createObject();			// Create JSON string.
-//	json[String(F("ssid"))]		= ssid;					// JSONify local configuration parameters.
-//	json[String(F("pass"))]		= pass;
-
 #ifndef	_CAYENNEMQTTESP8266_h
-	json[String(F("username"))]	= Cayenne_credential.username;
+	json[String(F("username"))]	= Cayenne_credential.username;		// JSONify local configuration parameters.
 	json[String(F("password"))]	= Cayenne_credential.password;
 	json[String(F("clientID"))]	= Cayenne_credential.clientID;
 	json[String(F("loop_delay"))]	= loop_delay;
 #endif
-
 	json[String(F("ip"))]		= staticAddress.ip.toString();
 	json[String(F("gateway"))]	= staticAddress.gateway.toString();
 	json[String(F("subnet"))]	= staticAddress.subnet.toString();
@@ -265,16 +253,12 @@ void Cayenne_Connect::OpenPortal(void) {
 	DEBUG_CC("");
 
 	if(shouldSaveConfig){							// Gater each configuration parameters only if we should save it.
-//		strcpy(ssid, WiFi.SSID().c_str());				// Get the wifi credentials we are currently using.
-//		strcpy(pass, WiFi.psk().c_str());
-
 #ifndef	_CAYENNEMQTTESP8266_h
 		strcpy(Cayenne_credential.username, const_cast<char*>(p_username.getValue()));
 		strcpy(Cayenne_credential.password, const_cast<char*>(p_password.getValue()));
 		strcpy(Cayenne_credential.clientID, const_cast<char*>(p_clientID.getValue()));
 		loop_delay = atoi(p_loop_delay.getValue());
 #endif
-
 		staticAddress.ip 	= WiFi.localIP();			// Get the IP adress we are currently using.
 		staticAddress.gateway	= WiFi.gatewayIP();
 		staticAddress.subnet	= WiFi.subnetMask();

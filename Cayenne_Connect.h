@@ -3,7 +3,7 @@
 * Date :		2018-Jan-21
 * By :			Jean-Daniel Lavoie
 * Description :	Inspired from kentaylor/WiFiManager (forked from tzapu/WiFiManager)
-*				Manage WiFi connection at every reboot for TIMEOUT seconds whit fixed IP.
+*		Manage WiFi connection at every reboot for TIMEOUT seconds whit fixed IP.
 *
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,8 +26,8 @@ SOFTWARE.
 #ifndef	CONFIG_FILE
 #define	CONFIG_FILE	"/CC_config.json"					// CONFIG_FILE is the name of the Configuration file.
 #endif
-void	saveConfigCallback(void);						// Callback helper to set shouldSaveConfig flag.
 
+void	saveConfigCallback(void);						// Callback helper to set shouldSaveConfig flag.
 
 // Option for Connect(option)
 #define	STATIC_HOSTNAME		0						// Parameter to Connect() to static IP with hostname.
@@ -64,11 +64,7 @@ class Cayenne_Connect {
   public:
 	Cayenne_Connect(void);							// Restore configuration, connect WiFi whit static IP, start WiFiManager, save configuration if needed and reconnect WiFi whit dynamic IP and hostname.
 	void		setDebugOutput(const bool _debug) { debug = _debug; }	// Called to enable/disable the debug information over serial.
-/*
-	char*		getMQTTusername(void) {	return Cayenne_credential.username; }
-	char*		getMQTTpassword(void) {	return Cayenne_credential.password; }
-	char*		getMQTTclientID(void) {	return Cayenne_credential.clientID; }
-*/
+
 	_MQTT_credential	getCayenne_credential(void) {	return Cayenne_credential; }
 
 	static	bool	shouldSaveConfig;					// Flag for saving data.
@@ -77,8 +73,8 @@ class Cayenne_Connect {
 	static int		loop_delay;
 
   private:
-	char			ssid[32];
-	char			pass[32];
+//	char			ssid[32];
+//	char			pass[32];
 	_staticAddress		staticAddress;
 	_MQTT_credential	Cayenne_credential;
 	bool			debug = true;
