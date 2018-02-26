@@ -84,8 +84,8 @@ class Cayenne_Connect {
 	bool			debug = true;
 	int			timeout = 180;
 
-	bool		readWiFiConfigFile(void);				// Restore configuration from the FileSystem.
-	bool		writeWiFiConfigFile(void);				// Save WiFi configuration to the FileSystem.
+	bool		readWiFiConfigFile(const char *filename);				// Restore configuration from the FileSystem.
+	bool		writeWiFiConfigFile(const char *filename);				// Save WiFi configuration to the FileSystem.
 
 	bool		Connect(const int option = STATIC_HOSTNAME) const;	// Force WiFi connection, see #define for option.
 	void		OpenPortal(void);					// Configure the WiFi via WiFiManager portal.
