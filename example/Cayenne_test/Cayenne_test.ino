@@ -1,6 +1,6 @@
 /****************************************************************************************
-* File	:		HelloWorld.ino
-* Date	:		2017-Dec-14
+* File	:		Cayenne_test.ino
+* Date	:		2018-Mar-30
 * By	:		Jean-Daniel Lavoie
 * Description :	Inspired from kentaylor/WiFiManager (forked from tzapu/WiFiManager)
 *		Manage WiFi connection at every reboot for 60 seconds whit fixed IP.
@@ -8,19 +8,18 @@
 ****************************************************************************************/
 
 #include <Cayenne_Connect.h>							//https://github.com/DJayDeee/Cayenne_Connect
+_MQTT_credential Cayenne_credential;					// Cayenne authentication info. This should be obtained from the Cayenne Dashboard.
 
-//#define CAYENNE_DEBUG
+#define CAYENNE_DEBUG
 #define CAYENNE_PRINT Serial
 #include <CayenneMQTTESP8266.h>							//https://github.com/myDevicesIoT/Cayenne-MQTT-ESP
 
-char username[48];								// Cayenne authentication info. This should be obtained from the Cayenne Dashboard.
-char password[48];
-char clientID[48];
-
-#include <queue>								// std::queue
+#define	RESTART_REQ_CH		0														// Cayenne channel for general commands.
+#define	SEND_REQ_CH			1
+#include <queue>																	// std::queue
 typedef enum user_request {
-	RESTART,								// Reset event.
-	SEND,									// Send event.
+	RESTART,																		// Reset event.
+	SEND,																			// Send event.
 } user_request;
 std::queue<user_request> request_queue;
 
@@ -30,20 +29,20 @@ LED Debug_LED;
 // setup()		Put your setup code here, to run once:
 //***************************************************************************************
 void setup(void) {
-	Debug_LED.on();								// Turn on LED during BOOT.
+	Debug_LED.on();																	// Turn on LED during BOOT.
 
-	Serial.begin(74880);							// Start serial for debug.
-	Serial.println(F(" "));							// First print is garbage.
+	Serial.begin(74880);															// Start serial for debug.
+	Serial.println(F(" "));															// First print is garbage.
 
-	Cayenne_Connect my_connection;						// Manage WiFi connection whit staticIP.
-	if (WiFi.isConnected()) {						// Turn LED OFF if connected.
+	Cayenne_Connect my_connection;													// Manage WiFi connection whit staticIP.
+	if (WiFi.isConnected()) {														// Turn LED OFF if connected.
 		Debug_LED.off();
 	}
 
-	strcpy(username, my_connection.getMQTTusername());
-	strcpy(password, my_connection.getMQTTpassword());
-	strcpy(clientID, my_connection.getMQTTclientID());
-	Cayenne.begin(username, password, clientID);				// Start Cayenne MQTT client.
+	Cayenne_credential = my_connection.getCayenne_credential();
+	Cayenne.begin(Cayenne_credential.username, Cayenne_credential.password, Cayenne_credential.clientID);	// Start Cayenne MQTT client.
+	
+	request_queue.push(SEND);														// Update Cayenne Dashboard after bootup.
 }
 
 
@@ -51,27 +50,27 @@ void setup(void) {
 // loop()		Endless storie
 //***************************************************************************************
 void loop() {
-	Cayenne.loop();
+	Debug_LED.toggle();
+	Cayenne.loop();																	// Take time to do Cayenne and WiFi techy stuf.
 	yield();
 
-	if (!request_queue.empty()) {
-		switch (request_queue.front()) {
-			case SEND:						// Update Cayenne dashboard.
-				Debug_LED.toggle();
+	if (!request_queue.empty()) {													// Process only if their is job to do.
+		switch (request_queue.front()) {											// Get the next job.
+			case SEND:																// Update Cayenne dashboard.
 // Put your Cayenne.virtualWrite(...); here
-				Cayenne.virtualWrite(1, false);			// Update cayenne_send button.
-				Serial.println(F("Cayenne server updated."));
+				Cayenne.virtualWrite(SEND_REQ_CH, false);							// Update cayenne_send button.
+				Serial.println(F("Cayenne dashboard updated."));
 				break;
 
-			case RESTART:						// Reset!!
-				Cayenne.virtualWrite(0, false);			// Update cayenne_restart button.
+			case RESTART:															// Reset!!
+				Cayenne.virtualWrite(RESTART_REQ_CH, false);						// Update cayenne_restart button.
 				Serial.println(F("!!Restarting NOW!!"));
 				ESP.restart();
 				delay(5000);
 				break;
 
 			default:
-				CAYENNE_LOG("Unknow user_request");
+				Serial.println(F("!!Unknow user_request!!"));
 		}
 		request_queue.pop();
 	}
@@ -81,19 +80,20 @@ void loop() {
 //***************************************************************************************
 // Function for processing actuator commands from the Cayenne Dashboard.
 //***************************************************************************************
-CAYENNE_IN(0) {
-	request_queue.push(RESTART);
+CAYENNE_IN(RESTART_REQ_CH) {
 	CAYENNE_LOG("Restart requested.");
+	request_queue.push(RESTART);
 }
 
 
-CAYENNE_IN(1) {
+CAYENNE_IN(SEND_REQ_CH) {
+	CAYENNE_LOG("Cayenne dashboard update requested.");
 	request_queue.push(SEND);
-	CAYENNE_LOG("Cayenne write requested.");
 }
-
 
 CAYENNE_IN_DEFAULT() {
 	CAYENNE_LOG("CAYENNE_IN_DEFAULT(%u) - %s, %s", request.channel, getValue.getId(), getValue.asString());
 	//Process message here. If there is an error set an error message using getValue.setError(), e.g getValue.setError("Error message");
 }
+
+
