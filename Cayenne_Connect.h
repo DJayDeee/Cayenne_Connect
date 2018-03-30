@@ -66,7 +66,10 @@ class Cayenne_Connect {
 	void		setDebugOutput(const bool _debug) { debug = _debug; }	// Called to enable/disable the debug information over serial.
 
 	_MQTT_credential	getCayenne_credential(void) {	return Cayenne_credential; }
-
+	char*			getMQTTusername(void) {	return Cayenne_credential.username; }
+	char*			getMQTTpassword(void) {	return Cayenne_credential.password; }
+	char*			getMQTTclientID(void) {	return Cayenne_credential.clientID; }
+	
 	static	bool	shouldSaveConfig;					// Flag for saving data.
 
 //	static _MQTT_credential	Cayenne_credential;
