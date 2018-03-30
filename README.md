@@ -3,14 +3,16 @@ WiFi and Cayenne connection helper for ESP8266.  Open a WiFi configuration porta
 Used to set :
 * WiFi SSID
 * WiFi password
-* hostname
 * Cayenne username
 * Cayenne password
 * Cayenne clientID
+* Cayenne loop delay
 * enable/disable serial debug informations
 * static  IP address
 * gateway IP address
 * subnet  IP address
+* hostname
+* WiFiManager portal timeout
 
 It restore configuration, connect WiFi whit static IP, start WiFiManager (STA + AP), save configuration if needed and reconnect WiFi whit dynamic IP and hostname.  **For an unfortunate reason Cayenne does not connect if we use static IP address.**
 
@@ -22,20 +24,20 @@ It restore configuration, connect WiFi whit static IP, start WiFiManager (STA + 
 ### Defines and structures
 * TIMEOUT define is used to close the WiFi configuration portal after a numer of seconds.  This apply only if a SSID exist and if there is no connection to the portal.
 
-* CONFIG_FILE is the file name where different parameter are stored in SPIFFS.
+* CONFIG_FILE is the json file name where different parameter are stored in SPIFFS.
   Exemple of what is inside CONFIG_FILE :
 ```bash
 	{
-	  "ssid": "yourwifiname",
-	  "pass": "yourwifipassword",
 	  "username": "yourcayenneusername",
 	  "password": "yourcayennepassword",
 	  "clientID": "yourcayenneclientid",
+	  "loop_delay": 1000,
 	  "ip": "192.168.0.3",
 	  "gateway": "192.168.0.1",
 	  "subnet": "255.255.255.0",
 	  "hostname": "youresp",
 	  "debug": true
+	  "timeout": 30
 	}
 ```
 
@@ -55,9 +57,10 @@ It restore configuration, connect WiFi whit static IP, start WiFiManager (STA + 
 	
 * Cayenne_Connect() instanciate class, restore configuration, connect WiFi whit static IP, start WiFiManager, save configuration if needed and reconnect WiFi whit dynamic IP and hostname.
 	* setDebugOutput(const bool _debug) to see debuging information via serial connection.
-	* getMQTTusername() return Cayenne authentication parameters.
-	* getMQTTpassword()
-	* getMQTTclientID()
+	* getCayenne_credential() return all Cayenne authentication parameters in one structure.
+		* getMQTTusername() return Cayenne authentication parameter separately.
+		* getMQTTpassword()
+		* getMQTTclientID()
 
 ### License and credits
 - Inspired from [kentaylor/WiFiManager](https://github.com/kentaylor/WiFiManager) (forked from [tzapu/WiFiManager](https://github.com/tzapu/WiFiManager))
